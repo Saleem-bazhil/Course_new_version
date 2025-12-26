@@ -11,6 +11,7 @@ router.route("/")
   .post(createPdfValidation, validate, ctrl.createPdf);
 
 router.route("/:id")
-  .put(updatePdfValidation, validate, ctrl.updatePdf);
-
+  .put(updatePdfValidation, validate, ctrl.updatePdf)
+  .patch(updatePdfValidation, validate, ctrl.updatePdf)
+  .delete(ctrl.deletePdf);
 module.exports = router;

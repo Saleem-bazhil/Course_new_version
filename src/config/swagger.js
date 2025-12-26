@@ -7,7 +7,7 @@ const options = {
     info: {
       title: "Course API",
       version: "1.0.0",
-      description: "API documentation for Course backend",
+      description: "API documentation",
     },
     servers: [
       {
@@ -16,14 +16,22 @@ const options = {
     ],
   },
 
-  apis: [
-    "./src/modules/**/*.js",
-    "./src/routes.js",
-  ],
+  apis: ["./src/modules/**/*.js"],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
 
 module.exports = (app) => {
-  app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  // Serve swagger JSON explicitly
+  app.get("/api/docs.json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.send(swaggerSpec);
+  });
+
+  // Serve swagger UI
+  app.use(
+    "/api/docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec)
+  );
 };
