@@ -6,7 +6,7 @@ import app from "./app.js";
 
 connectDB();
 
-const port = 3000;
+const port = 5050;
 
 export const instance = new Razorpay({
   key_id: dev.KEY_ID,

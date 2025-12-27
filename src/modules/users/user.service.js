@@ -77,4 +77,4 @@ export const loginUserService = async ({ email, password }) => {
     },
   };
 };
-console.log("JWT_SECRET:", process.env.JWT_SECRET);
+
