@@ -4,7 +4,7 @@ import cors from "cors";
 const app = express();
 
 const corsOptions = {
-  origin: ["http://localhost:8133"],
+  origin: ["http://localhost:8133","http://localhost:5050"],
   methods: ["GET", "POST", "PUT", "DELETE"],
 };
 

@@ -8,6 +8,12 @@ export const getPdf = asyncHandler(async (req, res) => {
   success(res, pdfs);
 });
 
+export const getPdfById = asyncHandler(async (req, res) => {
+  const pdf = await service.findById(req.params.id);
+  success(res, pdf, "PDF fetched successfully");
+});
+
+
 export const createPdf = asyncHandler(async (req, res) => {
   const pdf = await service.create(req.body);
   success(res, pdf, "PDF created");

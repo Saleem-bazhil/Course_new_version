@@ -11,6 +11,7 @@ router
 
 router
   .route("/:id")
+  .get(ctrl.getPdfById) 
   .put(ctrl.updatePdf)
   .patch(ctrl.updatePdf)
   .delete(ctrl.deletePdf);
