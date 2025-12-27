@@ -8,4 +8,7 @@ router.use("/pdf", pdfRoutes);
 import paymentRoutes from "./modules/payment/payment.routes.js";
 router.use("/payment", paymentRoutes);
 
+import userRoutes from "./modules/users/user.routes.js";
+router.use("/users", userRoutes);
+
 export default router;

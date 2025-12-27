@@ -1,30 +1,22 @@
-import { body, param } from "express-validator";
+import Joi from "joi";
 
-export const createPdfValidation = [
-  body("image").notEmpty().withMessage("Image is required"),
+export const createPdfValidation = Joi.object({
+  image: Joi.string().required(),
+  title: Joi.string().min(3).required(),
+  description: Joi.string().required(),
+  chapters: Joi.string().required(),
+  pdfUrl: Joi.string().required(),
+  price: Joi.number().required(),
+  image_detail: Joi.object({
+    image1: Joi.string().required(),
+    image2: Joi.string().required(),
+    image3: Joi.string().required(),
+    image4: Joi.string().required(),
+  }).required(),
+});
 
-  body("title")
-    .notEmpty()
-    .withMessage("Title is required")
-    .isLength({ min: 3 })
-    .withMessage("Title must be at least 3 characters"),
-
-  body("description").notEmpty().withMessage("Description is required"),
-  body("chapters").notEmpty().withMessage("Chapters are required"),
-  body("pdfUrl").notEmpty().withMessage("PDF URL is required"),
-
-  body("price")
-    .notEmpty()
-    .withMessage("Price is required")
-    .isNumeric()
-    .withMessage("Price must be a number"),
-
-  body("image_detail.image1").notEmpty().withMessage("Image1 is required"),
-  body("image_detail.image2").notEmpty().withMessage("Image2 is required"),
-  body("image_detail.image3").notEmpty().withMessage("Image3 is required"),
-  body("image_detail.image4").notEmpty().withMessage("Image4 is required"),
-];
-
-export const updatePdfValidation = [
-  param("id").isMongoId().withMessage("Invalid PDF ID"),
-];
+export const updatePdfValidation = Joi.object({
+  id: Joi.string()
+    .regex(/^[0-9a-fA-F]{24}$/)
+    .required(), // MongoDB ObjectId
+});
