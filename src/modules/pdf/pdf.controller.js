@@ -1,26 +1,26 @@
-const service = require("./pdf.service");
-const asyncHandler = require("../../utils/asyncHandler");
-const { success } = require("../../utils/apiResponse");
-const ApiError = require("../../utils/ApiError");
+import * as service from "./pdf.service.js";
+import asyncHandler from "../../utils/asyncHandler.js";
+import { success } from "../../utils/apiResponse.js";
+import ApiError from "../../utils/ApiError.js";
 
-exports.getPdf = asyncHandler(async (req, res) => {
+export const getPdf = asyncHandler(async (req, res) => {
   const pdfs = await service.findAll(req.query);
   success(res, pdfs);
 });
 
-exports.createPdf = asyncHandler(async (req, res) => {
+export const createPdf = asyncHandler(async (req, res) => {
   const pdf = await service.create(req.body);
   success(res, pdf, "PDF created");
 });
-  
-exports.updatePdf = asyncHandler(async (req, res) => {
+
+export const updatePdf = asyncHandler(async (req, res) => {
   const pdf = await service.update(req.params.id, req.body);
   if (!pdf) throw new ApiError("PDF not found", 404);
   success(res, pdf, "PDF updated");
 });
 
-exports.deletePdf = asyncHandler(async(req,res)=>{
-  const pdf = await service.delete(req.params.id);
-  if(!pdf) throw new ApiError("PDF not found", 404);
+export const deletePdf = asyncHandler(async (req, res) => {
+  const pdf = await service.deletePdf(req.params.id);
+  if (!pdf) throw new ApiError("PDF not found", 404);
   success(res, pdf, "PDF deleted");
-})
+});

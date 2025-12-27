@@ -1,13 +1,14 @@
-const express = require("express");
+import express from "express";
 const app = express();
 
 app.use(express.json());
 
 // routes
-const routes = require("./routes");
+import routes from "./routes.js";
 app.use("/api", routes);
 
 // swagger
-require("./config/swagger")(app);
+import swaggerConfig from "./config/swagger.js";
+swaggerConfig(app);
 
-module.exports = app;
+export default app;

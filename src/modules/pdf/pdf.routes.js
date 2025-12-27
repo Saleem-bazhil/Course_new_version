@@ -1,17 +1,17 @@
-const router = require("express").Router();
-const ctrl = require("./pdf.controller");
-const validate = require("../../middlewares/validate.middleware");
-const {
-  createPdfValidation,
-  updatePdfValidation,
-} = require("./pdf.validation");
+import { Router } from "express";
+const router = Router();
+import * as ctrl from "./pdf.controller.js";
+import validate from "../../middlewares/validate.middleware.js";
+import { createPdfValidation, updatePdfValidation } from "./pdf.validation.js";
 
-router.route("/")
-  .get(ctrl.getPdf) 
+router
+  .route("/")
+  .get(ctrl.getPdf)
   .post(createPdfValidation, validate, ctrl.createPdf);
 
-router.route("/:id")
+router
+  .route("/:id")
   .put(updatePdfValidation, validate, ctrl.updatePdf)
   .patch(updatePdfValidation, validate, ctrl.updatePdf)
   .delete(ctrl.deletePdf);
-module.exports = router;
+export default router;

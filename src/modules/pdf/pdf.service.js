@@ -1,7 +1,7 @@
-const Pdf = require("./pdf.model");
+import Pdf from "./pdf.model.js";
 
-exports.findAll = (query) => Pdf.find(query);
-exports.create = (data) => Pdf.create(data);
-exports.update = (id, data) =>
+export const findAll = (query) => Pdf.find(query);
+export const create = (data) => Pdf.create(data);
+export const update = (id, data) =>
   Pdf.findByIdAndUpdate(id, data, { new: true, runValidators: true });
-exports.delete = (id) => Pdf.findByIdAndDelete(id);
+export const deletePdf = (id) => Pdf.findByIdAndDelete(id);

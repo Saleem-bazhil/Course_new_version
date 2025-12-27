@@ -1,8 +1,11 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
 
 // Import module routes here
-const pdfRoutes = require("./modules/pdf/pdf.routes");
+import pdfRoutes from "./modules/pdf/pdf.routes.js";
 router.use("/pdf", pdfRoutes);
 
-module.exports = router;
+import paymentRoutes from "./modules/payment/payment.routes.js";
+router.use("/payment", paymentRoutes);
+
+export default router;
