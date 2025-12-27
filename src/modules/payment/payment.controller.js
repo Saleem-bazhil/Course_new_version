@@ -7,14 +7,12 @@ import {
 } from "./payment.service.js";
 
 export const createOrder = asyncHandler(async (req, res) => {
-  const { amount } = req.body;
-
-  if (!amount) {
-    throw new ApiError("Amount is required", 400);
+  const amount = Number(req.body.amount);
+  if (!amount || isNaN(amount) || amount <= 0) {
+    throw new ApiError("Amount is required and must be a valid number", 400);
   }
-
   const order = await createRazorpayOrderService(amount);
-  success(res, order, "Order created successfully");
+  return success( res, { order }, "Order created successfully" );
 });
 
 export const paymentVerification = asyncHandler(async (req, res) => {
@@ -24,7 +22,5 @@ export const paymentVerification = asyncHandler(async (req, res) => {
     throw new ApiError("Invalid payment signature", 400);
   }
 
-  res.redirect(
-    `http://localhost:5173/paymentsuccess?reference=${payment.razorpay_payment_id}`
-  );
+  return success( res, { payment }, "Payment verified successfully" );
 });
