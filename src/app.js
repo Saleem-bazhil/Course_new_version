@@ -20,4 +20,8 @@ app.use("/api", routes);
 import swaggerConfig from "./config/swagger.js";
 swaggerConfig(app);
 
+// error handling middleware (must be last)
+import errorMiddleware from "./middlewares/error.middleware.js";
+app.use(errorMiddleware);
+
 export default app;

@@ -14,6 +14,21 @@ const options = {
         url: "http://localhost:5050",
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          description: "Enter your JWT token obtained from /api/users/login endpoint",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
 
   apis: ["./src/modules/**/*.js"],
@@ -28,6 +43,19 @@ export default (app) => {
     res.send(swaggerSpec);
   });
 
-  // Serve swagger UI
-  app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  // Serve swagger UI with custom options
+  const swaggerUiOptions = {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "Course API Documentation",
+    swaggerOptions: {
+      persistAuthorization: true, // Persist authorization across page refreshes
+      displayRequestDuration: true,
+    },
+  };
+
+  app.use(
+    "/api/docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec, swaggerUiOptions)
+  );
 };
