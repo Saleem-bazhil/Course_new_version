@@ -130,3 +130,30 @@
  *       500:
  *         description: Server error
  */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: 65c9e7abc123
+ *         name:
+ *           type: string
+ *           example: Suhas
+ *         email:
+ *           type: string
+ *           example: user@gmail.com
+ *         role:
+ *           type: string
+ *           example: USER
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ */
