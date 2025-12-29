@@ -45,6 +45,7 @@ export const createOrder = asyncHandler(async (req, res) => {
 });
 
 export const paymentVerification = asyncHandler(async (req, res) => {
+<<<<<<< HEAD
   const { razorpay_payment_id, razorpay_order_id, razorpay_signature, guideId } = req.body;
   
   if (!guideId) {
@@ -64,12 +65,29 @@ export const paymentVerification = asyncHandler(async (req, res) => {
     guideId: guideId,
     amount: guide.price,
   });
+=======
+  const { guideId } = req.body;
+>>>>>>> recover-admin
 
-  if (!payment) {
-    throw new ApiError("Invalid payment signature", 400);
+  if (!guideId) {
+    throw new ApiError("guideId is required for payment verification", 400);
   }
 
-  return success( res, { payment }, "Payment verified successfully" );
+  if (!req.user || !req.user.id) {
+    throw new ApiError("Unauthorized", 401);
+  }
+
+  const payment = await verifyPaymentService({
+    ...req.body,
+    userId: req.user.id,
+    guideId,
+  });
+
+  if (!payment) {
+    throw new ApiError("Invalid payment details", 400);
+  }
+
+  return success(res, { payment }, "Payment verified successfully");
 });
 
 export const getMyPurchases = asyncHandler(async (req, res) => {

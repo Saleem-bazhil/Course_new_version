@@ -2,6 +2,7 @@ import crypto from "crypto";
 import dev from "../../config/payment.js";
 import { instance } from "../../index.js";
 import { Payment } from "./payment.model.js";
+import Pdf from "../pdf/pdf.model.js";
 
 export const createRazorpayOrderService = async (amount) => {
   try {
@@ -62,7 +63,10 @@ export const verifyPaymentService = async ({
   razorpay_signature,
   userId,
   guideId,
+<<<<<<< HEAD
   amount,
+=======
+>>>>>>> recover-admin
 }) => {
   const body = razorpay_order_id + "|" + razorpay_payment_id;
 
@@ -75,13 +79,27 @@ export const verifyPaymentService = async ({
     return null;
   }
 
+  // Ensure we know which user and which PDF this payment is for
+  if (!userId || !guideId) {
+    return null;
+  }
+
+  const pdfExists = await Pdf.findById(guideId);
+  if (!pdfExists) {
+    return null;
+  }
+
   const payment = await Payment.create({
     razorpay_payment_id,
     razorpay_order_id,
     razorpay_signature,
     user: userId,
+<<<<<<< HEAD
     guide: guideId,
     amount: amount,
+=======
+    pdf: guideId,
+>>>>>>> recover-admin
   });
 
   return payment;
