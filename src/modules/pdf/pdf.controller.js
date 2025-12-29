@@ -13,7 +13,6 @@ export const getPdfById = asyncHandler(async (req, res) => {
   success(res, pdf, "PDF fetched successfully");
 });
 
-
 export const createPdf = asyncHandler(async (req, res) => {
   const pdf = await service.create(req.body);
   success(res, pdf, "PDF created");
@@ -29,4 +28,31 @@ export const deletePdf = asyncHandler(async (req, res) => {
   const pdf = await service.deletePdf(req.params.id);
   if (!pdf) throw new ApiError("PDF not found", 404);
   success(res, pdf, "PDF deleted");
+});
+
+// Download / stream the PDF bytes for a user who has purchased it.
+export const downloadPdf = asyncHandler(async (req, res) => {
+  if (!req.user || !req.user.id) {
+    throw new ApiError("Unauthorized", 401);
+  }
+
+  const pdfId = req.params.id;
+
+  const { stream, filename } = await service.getPdfStreamForUser(
+    pdfId,
+    req.user.id,
+    req.user.role
+  );
+
+  if (!stream) {
+    throw new ApiError("Unable to fetch PDF", 500);
+  }
+
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader(
+    "Content-Disposition",
+    `inline; filename="${encodeURIComponent(filename || "file.pdf")}"`
+  );
+
+  stream.pipe(res);
 });

@@ -1,6 +1,11 @@
 export default (err, req, res, next) => {
-  res.status(500).json({
+  const statusCode = err.statusCode || 500;
+
+  // eslint-disable-next-line no-console
+  console.error(err);
+
+  res.status(statusCode).json({
     success: false,
-    message: err.message,
+    message: err.message || "Internal server error",
   });
 };

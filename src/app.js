@@ -16,6 +16,10 @@ app.use(express.json());
 import routes from "./routes.js";
 app.use("/api", routes);
 
+// error handler (must be after all routes/middleware)
+import errorHandler from "./middlewares/error.middleware.js";
+app.use(errorHandler);
+
 // swagger
 import swaggerConfig from "./config/swagger.js";
 swaggerConfig(app);
