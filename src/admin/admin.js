@@ -2,6 +2,11 @@ import AdminJS from "adminjs";
 import AdminJSExpress from "@adminjs/express";
 import * as AdminJSMongoose from "@adminjs/mongoose";
 
+import session from "express-session";
+import MongoStore from "connect-mongo";
+
+import { authenticateAdmin } from "./auth.js";
+
 import { Payment } from "../modules/payment/payment.model.js";
 import Pdf from "../modules/pdf/pdf.model.js";
 import { User } from "../modules/users/user.model.js";
@@ -33,20 +38,17 @@ const adminJs = new AdminJS({
       options: {
         navigation: "Payments",
         label: "Razorpay Payments",
-
         actions: {
           new: { isAccessible: false },
           edit: { isAccessible: false },
           delete: { isAccessible: false },
         },
-
         listProperties: [
           "razorpay_payment_id",
           "user",
           "pdf",
           "createdAt",
         ],
-
         showProperties: [
           "razorpay_payment_id",
           "razorpay_order_id",
@@ -64,6 +66,30 @@ const adminJs = new AdminJS({
   },
 });
 
-const adminRouter = AdminJSExpress.buildRouter(adminJs);
+// 🔒 Session config (like Django sessions)
+const sessionOptions = {
+  secret: "adminjs-secret",
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+  }),
+  cookie: {
+    httpOnly: true,
+    secure: false, // true in production (HTTPS)
+  },
+};
+
+// 🔐 AUTHENTICATED ROUTER (THIS CREATES LOGIN PAGE)
+const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
+  adminJs,
+  {
+    authenticate: authenticateAdmin,
+    cookieName: "adminjs",
+    cookiePassword: "adminjs-secret",
+  },
+  null,
+  sessionOptions
+);
 
 export { adminJs, adminRouter };
