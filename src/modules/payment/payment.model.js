@@ -5,57 +5,52 @@ const paymentSchema = new mongoose.Schema(
     razorpay_payment_id: {
       type: String,
       required: true,
+      unique: true,
     },
+
     razorpay_order_id: {
       type: String,
       required: true,
     },
+
     razorpay_signature: {
       type: String,
       required: true,
     },
-    // Link payment to the user who paid
+
+    // user who made the payment
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
       index: true,
     },
-    // Link payment to the specific PDF / guide
+
+    // purchased PDF / Guide
     pdf: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Pdf",
       required: true,
       index: true,
     },
+
+    amount: {
+      type: Number,
+      required: true,
+    },
+
+    currency: {
+      type: String,
+      default: "INR",
+    },
+
+    status: {
+      type: String,
+      enum: ["created", "paid", "failed"],
+      default: "paid",
+    },
   },
-<<<<<<< HEAD
-  razorpay_order_id: {
-    type: String,
-    required: true,
-  },
-  razorpay_signature: {
-    type: String,
-    required: true,
-  },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  guide: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Pdf",
-    required: true,
-  },
-  amount: {
-    type: Number,
-    required: true,
-  },
-}, { timestamps: true });
-=======
   { timestamps: true }
 );
->>>>>>> recover-admin
 
 export const Payment = mongoose.model("Payment", paymentSchema);

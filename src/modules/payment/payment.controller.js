@@ -8,9 +8,12 @@ import {
 } from "./payment.service.js";
 import Pdf from "../pdf/pdf.model.js";
 
+/**
+ * CREATE RAZORPAY ORDER
+ */
 export const createOrder = asyncHandler(async (req, res) => {
   const { guideId } = req.body;
-  
+
   if (!guideId) {
     throw new ApiError("Guide ID is required", 400);
   }
@@ -20,34 +23,40 @@ export const createOrder = asyncHandler(async (req, res) => {
     throw new ApiError("Guide not found", 404);
   }
 
-  // Validate guide price
-  if (!guide.price || isNaN(guide.price) || guide.price <= 0) {
-    throw new ApiError("Invalid guide price. Please contact support.", 400);
+  if (!guide.price || guide.price <= 0) {
+    throw new ApiError("Invalid guide price", 400);
   }
 
   const amount = Number(guide.price);
-  
-  try {
-    const order = await createRazorpayOrderService(amount);
-    
-    if (!order || !order.id) {
-      throw new ApiError("Failed to create payment order. Please try again.", 500);
-    }
-    
-    return success( res, { order, guideId, amount }, "Order created successfully" );
-  } catch (error) {
-    // Convert service errors to ApiError
-    if (error instanceof ApiError) {
-      throw error;
-    }
-    throw new ApiError(error.message || "Failed to create payment order", 500);
+
+  const order = await createRazorpayOrderService(amount);
+
+  if (!order?.id) {
+    throw new ApiError("Failed to create payment order", 500);
   }
+
+  return success(
+    res,
+    { order, guideId, amount },
+    "Order created successfully"
+  );
 });
 
+/**
+ * VERIFY PAYMENT & SAVE
+ */
 export const paymentVerification = asyncHandler(async (req, res) => {
-<<<<<<< HEAD
-  const { razorpay_payment_id, razorpay_order_id, razorpay_signature, guideId } = req.body;
-  
+  const {
+    razorpay_payment_id,
+    razorpay_order_id,
+    razorpay_signature,
+    guideId,
+  } = req.body;
+
+  if (!req.user || !req.user._id) {
+    throw new ApiError("Unauthorized", 401);
+  }
+
   if (!guideId) {
     throw new ApiError("Guide ID is required", 400);
   }
@@ -62,35 +71,30 @@ export const paymentVerification = asyncHandler(async (req, res) => {
     razorpay_order_id,
     razorpay_signature,
     userId: req.user._id,
-    guideId: guideId,
-    amount: guide.price,
-  });
-=======
-  const { guideId } = req.body;
->>>>>>> recover-admin
-
-  if (!guideId) {
-    throw new ApiError("guideId is required for payment verification", 400);
-  }
-
-  if (!req.user || !req.user.id) {
-    throw new ApiError("Unauthorized", 401);
-  }
-
-  const payment = await verifyPaymentService({
-    ...req.body,
-    userId: req.user.id,
     guideId,
+    amount: guide.price,
   });
 
   if (!payment) {
-    throw new ApiError("Invalid payment details", 400);
+    throw new ApiError("Payment verification failed", 400);
   }
 
   return success(res, { payment }, "Payment verified successfully");
 });
 
+/**
+ * GET LOGGED-IN USER PURCHASES
+ */
 export const getMyPurchases = asyncHandler(async (req, res) => {
+  if (!req.user || !req.user._id) {
+    throw new ApiError("Unauthorized", 401);
+  }
+
   const purchasedGuides = await getUserPurchasedGuides(req.user._id);
-  return success( res, { guides: purchasedGuides }, "Purchased guides fetched successfully" );
+
+  return success(
+    res,
+    { guides: purchasedGuides },
+    "Purchased guides fetched successfully"
+  );
 });

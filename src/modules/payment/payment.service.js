@@ -63,10 +63,7 @@ export const verifyPaymentService = async ({
   razorpay_signature,
   userId,
   guideId,
-<<<<<<< HEAD
   amount,
-=======
->>>>>>> recover-admin
 }) => {
   const body = razorpay_order_id + "|" + razorpay_payment_id;
 
@@ -94,12 +91,8 @@ export const verifyPaymentService = async ({
     razorpay_order_id,
     razorpay_signature,
     user: userId,
-<<<<<<< HEAD
     guide: guideId,
     amount: amount,
-=======
-    pdf: guideId,
->>>>>>> recover-admin
   });
 
   return payment;
