@@ -76,6 +76,15 @@ export const verifyPaymentService = async ({
     return null;
   }
 
+  const alreadyPurchased = await Payment.findOne({
+    user: userId,
+    pdf: guideId,
+  });
+
+  if (alreadyPurchased) {
+    return alreadyPurchased; // idempotent
+  }
+
   // Ensure we know which user and which PDF this payment is for
   if (!userId || !guideId) {
     return null;
@@ -91,7 +100,7 @@ export const verifyPaymentService = async ({
     razorpay_order_id,
     razorpay_signature,
     user: userId,
-    guide: guideId,
+    pdf: guideId,
     amount: amount,
   });
 
@@ -101,14 +110,14 @@ export const verifyPaymentService = async ({
 export const checkUserPurchase = async (userId, guideId) => {
   const purchase = await Payment.findOne({
     user: userId,
-    guide: guideId,
+    pdf: guideId,
   });
   return !!purchase;
 };
 
 export const getUserPurchasedGuides = async (userId) => {
   const purchases = await Payment.find({ user: userId })
-    .populate("guide", "title description image price pdfUrl")
-    .select("guide createdAt");
-  return purchases.map((purchase) => purchase.guide);
+    .populate("pdf", "title description image price pdfUrl")
+    .select("pdf createdAt");
+  return purchases.map((purchase) => purchase.pdf);
 };
