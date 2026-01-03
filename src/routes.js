@@ -11,4 +11,7 @@ router.use("/payment", paymentRoutes);
 import userRoutes from "./modules/users/user.routes.js";
 router.use("/users", userRoutes);
 
+import courseRoutes from "./modules/course/course.routes.js";
+router.use("/courses",courseRoutes)
+
 export default router;

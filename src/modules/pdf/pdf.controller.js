@@ -4,7 +4,7 @@ import { success } from "../../utils/apiResponse.js";
 import ApiError from "../../utils/ApiError.js";
 import { checkUserPurchase } from "../payment/payment.service.js";
 
-/**
+/** 
  * GET ALL PDFS
  */
 export const getPdf = asyncHandler(async (req, res) => {

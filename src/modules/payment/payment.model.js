@@ -15,7 +15,7 @@ const paymentSchema = new mongoose.Schema(
 
     razorpay_signature: {
       type: String,
-      required: true,
+      required: true, 
     },
 
     // user who made the payment
