@@ -27,12 +27,19 @@ const paymentSchema = new mongoose.Schema(
     },
 
     // purchased PDF / Guide
-    pdf: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Pdf",
-      required: true,
-      index: true,
-    },
+    item: {
+  type: mongoose.Schema.Types.ObjectId,
+  required: true,
+  refPath: "itemType",
+  index: true,
+},
+
+itemType: {
+  type: String,
+  enum: ["Pdf", "Course"],
+  required: true,
+},
+
 
     amount: {
       type: Number,
@@ -49,6 +56,7 @@ const paymentSchema = new mongoose.Schema(
       enum: ["created", "paid", "failed"],
       default: "paid",
     },
+    
   },
   { timestamps: true }
 );

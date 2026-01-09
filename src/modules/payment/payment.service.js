@@ -3,69 +3,37 @@ import dev from "../../config/payment.js";
 import { instance } from "../../index.js";
 import { Payment } from "./payment.model.js";
 import Pdf from "../pdf/pdf.model.js";
+import {Course} from "../course/course.model.js";
 
+/**
+ * CREATE RAZORPAY ORDER
+ */
 export const createRazorpayOrderService = async (amount) => {
-  try {
-    // Validate amount
-    if (!amount || isNaN(amount) || amount <= 0) {
-      throw new Error("Invalid amount. Amount must be a positive number.");
-    }
-
-    // Check if Razorpay instance is initialized
-    if (!instance) {
-      throw new Error("Razorpay instance is not initialized. Please check your configuration.");
-    }
-
-    // Check if Razorpay keys are configured
-    if (!instance.key_id || !instance.key_secret) {
-      throw new Error("Razorpay credentials are not configured. Please set KEY_ID and KEY_SECRET in environment variables.");
-    }
-
-    const options = {
-      amount: Math.round(Number(amount * 100)), // Convert to paise and round
-      currency: "INR",
-    };
-
-    // Validate amount is at least 1 paise (0.01 INR)
-    if (options.amount < 1) {
-      throw new Error("Amount is too small. Minimum amount is 0.01 INR.");
-    }
-
-    const order = await instance.orders.create(options);
-    
-    if (!order) {
-      throw new Error("Failed to create Razorpay order. No response received.");
-    }
-
-    if (!order.id) {
-      throw new Error("Invalid response from Razorpay. Order ID is missing.");
-    }
-
-    return order;
-  } catch (error) {
-    // Handle Razorpay specific errors
-    if (error.error) {
-      const errorMessage = error.error.description || error.error.message || JSON.stringify(error.error);
-      throw new Error(`Razorpay Error: ${errorMessage}`);
-    }
-    // Re-throw ApiError as-is
-    if (error.constructor.name === 'ApiError') {
-      throw error;
-    }
-    // Wrap other errors
-    throw new Error(error.message || "Failed to create Razorpay order");
+  if (!amount || isNaN(amount) || amount <= 0) {
+    throw new Error("Invalid amount");
   }
+
+  const options = {
+    amount: Math.round(amount * 100),
+    currency: "INR",
+  };
+
+  return await instance.orders.create(options);
 };
 
+/**
+ * VERIFY PAYMENT & SAVE (PDF / COURSE)
+ */
 export const verifyPaymentService = async ({
   razorpay_payment_id,
   razorpay_order_id,
   razorpay_signature,
   userId,
-  guideId,
+  itemId,
+  itemType,
   amount,
 }) => {
-  const body = razorpay_order_id + "|" + razorpay_payment_id;
+  const body = `${razorpay_order_id}|${razorpay_payment_id}`;
 
   const expectedSignature = crypto
     .createHmac("sha256", dev.KEY_SECRET)
@@ -76,22 +44,23 @@ export const verifyPaymentService = async ({
     return null;
   }
 
+  // Prevent duplicate purchase
   const alreadyPurchased = await Payment.findOne({
     user: userId,
-    pdf: guideId,
+    item: itemId,
+    itemType,
   });
 
   if (alreadyPurchased) {
-    return alreadyPurchased; // idempotent
+    return alreadyPurchased;
   }
 
-  // Ensure we know which user and which PDF this payment is for
-  if (!userId || !guideId) {
-    return null;
-  }
+  // Validate item existence
+  let itemExists;
+  if (itemType === "Pdf") itemExists = await Pdf.findById(itemId);
+  if (itemType === "Course") itemExists = await Course.findById(itemId);
 
-  const pdfExists = await Pdf.findById(guideId);
-  if (!pdfExists) {
+  if (!itemExists) {
     return null;
   }
 
@@ -100,24 +69,32 @@ export const verifyPaymentService = async ({
     razorpay_order_id,
     razorpay_signature,
     user: userId,
-    pdf: guideId,
-    amount: amount,
+    item: itemId,
+    itemType,
+    amount,
   });
 
   return payment;
 };
 
-export const checkUserPurchase = async (userId, guideId) => {
-  const purchase = await Payment.findOne({
+/**
+ * CHECK IF USER PURCHASED ITEM
+ */
+export const checkUserPurchase = async (userId, itemId, itemType) => {
+  return !!(await Payment.findOne({
     user: userId,
-    pdf: guideId,
-  });
-  return !!purchase;
+    item: itemId,
+    itemType: "Pdf",
+  }));
 };
 
+/**
+ * GET ALL USER PURCHASES (PDF + COURSE)
+ */
 export const getUserPurchasedGuides = async (userId) => {
-  const purchases = await Payment.find({ user: userId })
-    .populate("pdf", "title description image price pdfUrl")
-    .select("pdf createdAt");
-  return purchases.map((purchase) => purchase.pdf);
+  return await Payment.find({
+    user: userId,
+    itemType: "Pdf",
+    status: "paid",
+  }).populate("item"); // ✅ REQUIRED
 };

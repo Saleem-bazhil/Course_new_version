@@ -7,27 +7,37 @@ import {
   getUserPurchasedGuides,
 } from "./payment.service.js";
 import Pdf from "../pdf/pdf.model.js";
+import {Course} from "../course/course.model.js";
 
 /**
- * CREATE RAZORPAY ORDER
+ * CREATE RAZORPAY ORDER (PDF / COURSE)
  */
 export const createOrder = asyncHandler(async (req, res) => {
-  const { guideId } = req.body;
+  const { itemId, itemType } = req.body;
 
-  if (!guideId) {
-    throw new ApiError("Guide ID is required", 400);
+  if (!itemId || !itemType) {
+    throw new ApiError("Item ID and Item Type are required", 400);
   }
 
-  const guide = await Pdf.findById(guideId);
-  if (!guide) {
-    throw new ApiError("Guide not found", 404);
+  let item;
+
+  if (itemType === "Pdf") {
+    item = await Pdf.findById(itemId);
+  } else if (itemType === "Course") {
+    item = await Course.findById(itemId);
+  } else {
+    throw new ApiError("Invalid item type", 400);
   }
 
-  if (!guide.price || guide.price <= 0) {
-    throw new ApiError("Invalid guide price", 400);
+  if (!item) {
+    throw new ApiError("Item not found", 404);
   }
 
-  const amount = Number(guide.price);
+  if (!item.price || item.price <= 0) {
+    throw new ApiError("Invalid item price", 400);
+  }
+
+  const amount = Number(item.price);
 
   const order = await createRazorpayOrderService(amount);
 
@@ -37,33 +47,41 @@ export const createOrder = asyncHandler(async (req, res) => {
 
   return success(
     res,
-    { order, guideId, amount },
+    { order, itemId, itemType, amount },
     "Order created successfully"
   );
 });
 
 /**
- * VERIFY PAYMENT & SAVE
+ * VERIFY PAYMENT & SAVE (PDF / COURSE)
  */
 export const paymentVerification = asyncHandler(async (req, res) => {
   const {
     razorpay_payment_id,
     razorpay_order_id,
     razorpay_signature,
-    guideId,
+    itemId,
+    itemType,
   } = req.body;
 
   if (!req.user || !req.user._id) {
     throw new ApiError("Unauthorized", 401);
   }
 
-  if (!guideId) {
-    throw new ApiError("Guide ID is required", 400);
+  if (!itemId || !itemType) {
+    throw new ApiError("Item ID and Item Type are required", 400);
   }
 
-  const guide = await Pdf.findById(guideId);
-  if (!guide) {
-    throw new ApiError("Guide not found", 404);
+  let item;
+
+  if (itemType === "Pdf") {
+    item = await Pdf.findById(itemId);
+  } else if (itemType === "Course") {
+    item = await Course.findById(itemId);
+  }
+
+  if (!item) {
+    throw new ApiError("Item not found", 404);
   }
 
   const payment = await verifyPaymentService({
@@ -71,8 +89,9 @@ export const paymentVerification = asyncHandler(async (req, res) => {
     razorpay_order_id,
     razorpay_signature,
     userId: req.user._id,
-    guideId,
-    amount: guide.price,
+    itemId,
+    itemType,
+    amount: item.price,
   });
 
   if (!payment) {
@@ -90,11 +109,18 @@ export const getMyPurchases = asyncHandler(async (req, res) => {
     throw new ApiError("Unauthorized", 401);
   }
 
-  const purchasedGuides = await getUserPurchasedGuides(req.user._id);
+  const payments = await getUserPurchasedGuides(req.user._id);
+
+  const guides = payments
+    .filter(p => p.item) // ✅ safety
+    .map(p => ({
+      ...p.item.toObject(),
+      isPurchased: true,
+    }));
 
   return success(
     res,
-    { guides: purchasedGuides },
+    { guides },
     "Purchased guides fetched successfully"
   );
 });

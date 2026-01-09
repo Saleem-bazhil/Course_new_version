@@ -24,7 +24,8 @@ export const getPdfStreamForUser = async (pdfId, userId, role = "USER") => {
   if (role !== "ADMIN") {
     const hasPayment = await Payment.findOne({
       user: userId,
-      pdf: pdfId,
+      item: pdfId,
+      itemType: "Pdf",
     });
 
     if (!hasPayment) {
