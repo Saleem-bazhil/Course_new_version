@@ -32,3 +32,8 @@ import errorMiddleware from "./middlewares/error.middleware.js";
 app.use(errorMiddleware);
 
 export default app;
+
+import commentsRoutes from "./modules/comments/comments.routes.js";
+
+app.use("/api/comments", commentsRoutes);
+
