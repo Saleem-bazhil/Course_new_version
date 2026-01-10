@@ -8,6 +8,8 @@ import {
 } from "./payment.service.js";
 import Pdf from "../pdf/pdf.model.js";
 import {Course} from "../course/course.model.js";
+import { Payment } from "./payment.model.js";
+
 
 /**
  * CREATE RAZORPAY ORDER (PDF / COURSE)
@@ -109,18 +111,24 @@ export const getMyPurchases = asyncHandler(async (req, res) => {
     throw new ApiError("Unauthorized", 401);
   }
 
-  const payments = await getUserPurchasedGuides(req.user._id);
+  const payments = await Payment.find({
+    user: req.user._id,
+    status: "paid",
+  }).populate("item");
 
-  const guides = payments
-    .filter(p => p.item) // ✅ safety
+  const courses = payments
+    .filter(p => p.itemType === "Course" && p.item)
     .map(p => ({
       ...p.item.toObject(),
       isPurchased: true,
     }));
 
-  return success(
-    res,
-    { guides },
-    "Purchased guides fetched successfully"
-  );
+  const guides = payments
+    .filter(p => p.itemType === "Pdf" && p.item)
+    .map(p => ({
+      ...p.item.toObject(),
+      isPurchased: true,
+    }));
+
+  return success(res, { courses, guides });
 });

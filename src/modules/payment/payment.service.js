@@ -9,17 +9,28 @@ import {Course} from "../course/course.model.js";
  * CREATE RAZORPAY ORDER
  */
 export const createRazorpayOrderService = async (amount) => {
+  if (!instance) {
+    throw new Error("Razorpay instance not initialized");
+  }
+
   if (!amount || isNaN(amount) || amount <= 0) {
     throw new Error("Invalid amount");
   }
 
-  const options = {
-    amount: Math.round(amount * 100),
-    currency: "INR",
-  };
+  try {
+    const options = {
+      amount: Math.round(amount * 100),
+      currency: "INR",
+    };
 
-  return await instance.orders.create(options);
+    const order = await instance.orders.create(options);
+    return order;
+  } catch (err) {
+    console.error(" Razorpay SDK Error:", err);
+    throw new Error("Razorpay order creation failed");
+  }
 };
+
 
 /**
  * VERIFY PAYMENT & SAVE (PDF / COURSE)
@@ -80,12 +91,19 @@ export const verifyPaymentService = async ({
 /**
  * CHECK IF USER PURCHASED ITEM
  */
-export const checkUserPurchase = async (userId, itemId, itemType) => {
-  return !!(await Payment.findOne({
+export const checkUserPurchase = async (
+  userId,
+  itemId,
+  itemType = "Pdf"
+) => {
+  const payment = await Payment.findOne({
     user: userId,
     item: itemId,
-    itemType: "Pdf",
-  }));
+    itemType,
+    status: "paid",
+  });
+
+  return !!payment;
 };
 
 /**
@@ -94,7 +112,7 @@ export const checkUserPurchase = async (userId, itemId, itemType) => {
 export const getUserPurchasedGuides = async (userId) => {
   return await Payment.find({
     user: userId,
-    itemType: "Pdf",
     status: "paid",
-  }).populate("item"); // ✅ REQUIRED
+  }).populate("item");
 };
+
