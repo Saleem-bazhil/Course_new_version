@@ -37,3 +37,6 @@ import commentsRoutes from "./modules/comments/comments.routes.js";
 
 app.use("/api/comments", commentsRoutes);
 
+import notesRoutes from "./modules/notes/notes.routes.js";
+
+app.use("/api/notes", notesRoutes);
