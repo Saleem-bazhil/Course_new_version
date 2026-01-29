@@ -4,7 +4,8 @@ const chapterSchema = new mongoose.Schema(
   {
     chapter_title: { type: String, required: true },
     chapter_description: { type: String, required: true },
-    duration: { type: Number, required: true }, // minutes
+    duration: { type: Number, required: true }, 
+    video_url: { type: String},
   },
   { _id: true } // allowed
 );
