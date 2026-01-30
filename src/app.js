@@ -5,7 +5,7 @@ import { adminJs, adminRouter } from "./admin/admin.js";
 const app = express();
 
 const corsOptions = {
-  origin: ["http://localhost:8133","http://localhost:5050"],
+  origin: ["https://api.skiezpdfbooks.in","http://localhost:5050"],
   methods: ["GET", "POST", "PUT", "DELETE"],
 };
 

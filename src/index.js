@@ -23,6 +23,6 @@ app.listen(port, () => {
   if (dev.KEY_ID && dev.KEY_SECRET) {
     console.log(" Razorpay configured");
   } else {
-    console.log("❌ Razorpay not configured - check environment variables");
+    console.log(" Razorpay not configured - check environment variables");
   }
 });
