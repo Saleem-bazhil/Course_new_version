@@ -1,11 +1,16 @@
 import express from "express";
 import cors from "cors";
 import { adminJs, adminRouter } from "./admin/admin.js";
+import routes from "./routes.js";
+import commentsRoutes from "./modules/comments/comments.routes.js";
+import notesRoutes from "./modules/notes/notes.routes.js";
+import swaggerConfig from "./config/swagger.js";
+import errorMiddleware from "./middlewares/error.middleware.js";
 
 const app = express();
 
 const corsOptions = {
-  origin: ["https://api.skiezpdfbooks.in","http://localhost:5050"],
+  origin: ["https://www.skiezpdfbooks.in",],
   methods: ["GET", "POST", "PUT", "DELETE"],
 };
 
@@ -15,28 +20,15 @@ app.use(express.json());
 
 app.use(adminJs.options.rootPath, adminRouter);
 
-// routes
-import routes from "./routes.js";
+// routes (must be before error handler)
 app.use("/api", routes);
-
-// error handler (must be after all routes/middleware)
-import errorHandler from "./middlewares/error.middleware.js";
-app.use(errorHandler);
+app.use("/api/comments", commentsRoutes);
+app.use("/api/notes", notesRoutes);
 
 // swagger
-import swaggerConfig from "./config/swagger.js";
 swaggerConfig(app);
 
 // error handling middleware (must be last)
-import errorMiddleware from "./middlewares/error.middleware.js";
 app.use(errorMiddleware);
 
 export default app;
-
-import commentsRoutes from "./modules/comments/comments.routes.js";
-
-app.use("/api/comments", commentsRoutes);
-
-import notesRoutes from "./modules/notes/notes.routes.js";
-
-app.use("/api/notes", notesRoutes);
