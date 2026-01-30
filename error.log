@@ -1,0 +1,10 @@
+2026-01-30T09:45:05.529Z Error: Razorpay order creation failed
+    at createRazorpayOrderService (file:///C:/Users/ab588/OneDrive/Documents/Desktop/pdf%20app/course3.0/src/modules/payment/payment.service.js:30:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///C:/Users/ab588/OneDrive/Documents/Desktop/pdf%20app/course3.0/src/modules/payment/payment.controller.js:44:17
+
+2026-01-30T09:45:41.627Z Error: Razorpay order creation failed
+    at createRazorpayOrderService (file:///C:/Users/ab588/OneDrive/Documents/Desktop/pdf%20app/course3.0/src/modules/payment/payment.service.js:30:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///C:/Users/ab588/OneDrive/Documents/Desktop/pdf%20app/course3.0/src/modules/payment/payment.controller.js:44:17
+

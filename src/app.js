@@ -10,7 +10,8 @@ import errorMiddleware from "./middlewares/error.middleware.js";
 const app = express();
 
 const corsOptions = {
-  origin: ["https://www.skiezpdfbooks.in",],
+  origin: ["https://www.skiezpdfbooks.in"],
+  // origin: ["http://localhost:8133"],
   methods: ["GET", "POST", "PUT", "DELETE"],
 };
 
